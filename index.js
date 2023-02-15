@@ -1,72 +1,50 @@
-const fs= require ("fs");
 
+let fs =require ("fs");
 
+let products =JSON.parse(fs.readFileSync("products.json","utf-8")) 
+// console.log(products)
 
-// fs.writeFileSync("entries.txt","[]" , function(err, data){
-//     console.log(data)
-// })
+const http = require("http");
+const { stringify } = require("querystring");
 
-// entry ///
+const server =http.createServer (function(request,response){
 
-if (process.argv[2]=="add") {
-    let data = JSON.parse(fs.readFileSync("entries.txt","utf-8"))
-    student={};
-    student.id= data.length +1;
-    student.name= process.argv[3];
-    student.grade= process.argv[4];
-    data.push(student);
-    fs.writeFileSync("entries.txt" ,JSON.stringify(data)) 
-}
+    const urls= request.url.split('/')
 
-//edit///
+    if(urls[1]=="home"){
 
-else if (process.argv[2]=="edit"){
-    let data = JSON.parse(fs.readFileSync("entries.txt","utf-8"))
-    data.forEach(student => {
-        if( student.id == parseInt(process.argv[4]))
+        let html=fs.readFileSync("index.html",'utf-8');
+        response.write(html);
+    }
+
+    else if (urls[1]=="products"){
+        let product =JSON.stringify(products)
+        response.write(product)
+
+    }
+
+    else if (urls[1]=="products" && parseInt(urls[2]) ){
+
+        let id = urls[2]-1
+        selectedProduct= products[id];
+        let product =JSON.stringify(selectedProduct)
+        response.write(product);
+    }
+
+    else
         {
-            student.grade=process.argv[3]
-            // console.log(data);
+            response.writeHead(404);
+            response.write('<h1>notfound</h1>')
         }
-    });
-    fs.writeFileSync("entries.txt" ,JSON.stringify(data)) 
-}
 
-//delete///
+    // response.write("hii from server");
+    response.end()
 
-else if (process.argv[2]=="del"){
-    let data = JSON.parse(fs.readFileSync("entries.txt","utf-8"))
-    data.forEach(student =>{
-        if(student.id == parseInt(process.argv[3]))
-        {
-            data.splice(data.indexOf(student),1);
-        }
-    });
-    fs.writeFileSync("entries.txt" ,JSON.stringify(data)) 
-            console.log(data);
-}
-
-//sum ///
-
-else if (process.argv[2]== "sum"){
-    sum=0;
-    let data = JSON.parse(fs.readFileSync("entries.txt","utf-8"))
-    data.forEach(student => {
-        sum+=parseInt(student.grade) 
-    })
- console.log(sum)
-}
+})
 
 
-//list//
+server.listen(4000, function(){
+    console.log("hi sherein")
 
-else if (process.argv[2]=="list"){
-    let data = JSON.parse(fs.readFileSync("entries.txt","utf-8"))
-    console.log(data)
-}
-
-else {
-
-    console.log("error")
-}
+})
 
